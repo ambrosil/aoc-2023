@@ -6,12 +6,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val spellingMap = mapOf(
-            "one" to "1", "two" to "2",
-            "three" to "3", "four" to "4",
-            "five" to "5", "six" to "6",
-            "seven" to "7", "eight" to "8", "nine" to "9"
-        )
+        val words = listOf("one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
 
         fun String.fixSpelling(): String {
             var res = ""
@@ -19,10 +14,10 @@ fun main() {
             this.forEachIndexed { i, c ->
                 if (c.isDigit()) res += c
 
-                spellingMap.entries.forEach {
-                    if (this.length >= i + it.key.length) {
-                        val substring = this.substring(i, i + it.key.length)
-                        if (substring == it.key) res += it.value
+                words.forEachIndexed { index, word ->
+                    if (this.length >= i + word.length) {
+                        val substring = this.substring(i, i + word.length)
+                        if (substring == word) res += index + 1
                     }
                 }
             }
