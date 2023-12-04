@@ -42,8 +42,8 @@ fun main() {
 
         map.entries.forEach { entry ->
             repeat(instances[entry.key]!!) {
-                for (index in 0 until entry.value) {
-                    instances[entry.key + index + 1] = instances[entry.key + index + 1]!! + 1
+                repeat(entry.value) {
+                    instances[entry.key + it + 1] = instances[entry.key + it + 1]!! + 1
                 }
             }
         }

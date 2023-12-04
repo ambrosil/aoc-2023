@@ -8,79 +8,42 @@ fun main() {
 
     fun adjacents(x: Int, y: Int, matrix: List<List<Point>>): List<Point> {
         val point = matrix[y][x]
-        val adjs = mutableListOf<Point>()
+        val adjacents = mutableListOf<Point>()
 
-        if (point.x + 1 < matrix[y].size) {
-            adjs.add(matrix[y][x + 1])
-        }
-        if (point.x - 1 >= 0) {
-            adjs.add(matrix[y][x - 1])
-        }
-        if (point.y + 1 < matrix.size) {
-            adjs.add(matrix[y + 1][x])
+        if (point.x - 1 >= 0 && point.y - 1 >= 0) {
+            adjacents.add(matrix[y - 1][x - 1])
         }
         if (point.y - 1 >= 0) {
-            adjs.add(matrix[y - 1][x])
-        }
-        if (point.x + 1 < matrix[y].size && point.y + 1 < matrix.size) {
-            adjs.add(matrix[y + 1][x + 1])
+            adjacents.add(matrix[y - 1][x])
         }
         if (point.x + 1 < matrix[y].size && point.y - 1 >= 0) {
-            adjs.add(matrix[y - 1][x + 1])
-        }
-        if (point.x - 1 >= 0 && point.y - 1 >= 0) {
-            adjs.add(matrix[y - 1][x - 1])
-        }
-        if (point.x - 1 >= 0 && point.y + 1 < matrix.size) {
-            adjs.add(matrix[y + 1][x - 1])
+            adjacents.add(matrix[y - 1][x + 1])
         }
 
-        return adjs
+        if (point.x - 1 >= 0) {
+            adjacents.add(matrix[y][x - 1])
+        }
+        if (point.x + 1 < matrix[y].size) {
+            adjacents.add(matrix[y][x + 1])
+        }
+
+        if (point.x - 1 >= 0 && point.y + 1 < matrix.size) {
+            adjacents.add(matrix[y + 1][x - 1])
+        }
+        if (point.y + 1 < matrix.size) {
+            adjacents.add(matrix[y + 1][x])
+        }
+        if (point.x + 1 < matrix[y].size && point.y + 1 < matrix.size) {
+            adjacents.add(matrix[y + 1][x + 1])
+        }
+
+        return adjacents
     }
 
     fun checkAdjacents(x: Int, y: Int, matrix: List<List<Point>>, block: (p : Point) -> Boolean): Boolean {
         val point = matrix[y][x]
         if (!point.value.isDigit()) return true
-
-        if (point.x + 1 < matrix[y].size) {
-            val adjPoint = matrix[y][x + 1]
-            if (block(adjPoint)) return true
-        }
-        if (point.x - 1 >= 0) {
-            val adjPoint = matrix[y][x - 1]
-            if (block(adjPoint)) return true
-        }
-        if (point.y + 1 < matrix.size) {
-            val adjPoint = matrix[y + 1][x]
-            if (block(adjPoint)) return true
-        }
-        if (point.y - 1 >= 0) {
-            val adjPoint = matrix[y - 1][x]
-            if (block(adjPoint)) return true
-        }
-        if (point.x + 1 < matrix[y].size && point.y + 1 < matrix.size) {
-            val adjPoint = matrix[y + 1][x + 1]
-            if (block(adjPoint)) return true
-        }
-        if (point.x + 1 < matrix[y].size && point.y - 1 >= 0) {
-            val adjPoint = matrix[y - 1][x + 1]
-            if (block(adjPoint)) return true
-        }
-        if (point.x - 1 >= 0 && point.y - 1 >= 0) {
-            val adjPoint = matrix[y - 1][x - 1]
-            if (block(adjPoint)) return true
-        }
-        if (point.x - 1 >= 0 && point.y + 1 < matrix.size) {
-            val adjPoint = matrix[y + 1][x - 1]
-            if (block(adjPoint)) return true
-        }
-
-        return false
-    }
-
-    fun isGear(point : Point, matrix: List<List<Point>>): Boolean {
-        val adjacents = adjacents(point.x, point.y, matrix)
-        return true // adjacents
+        return adjacents(x, y, matrix).any { block(it) }
     }
 
     fun isPartNumber(x: Int, y: Int, matrix: List<List<Point>>): Boolean {
@@ -122,8 +85,57 @@ fun main() {
         return partNumbers.sum()
     }
 
-    fun isGear(it: Point): Boolean {
-        return true // it.adjPointSize() == 2
+    val visited = mutableListOf<Point>()
+
+    fun numberify(matrix: List<List<Point>>, point: Point): Int {
+        var number = point.value.toString()
+        var prevDone = false
+        var nextDone = false
+
+        visited += point
+
+        for (i in 1 until matrix[point.y].size) {
+            if (point.x - i >= 0 && !prevDone) {
+                val v = matrix[point.y][point.x - i]
+
+                if (v.value.isDigit()) {
+                    if (v in visited) return -1
+                    visited += v
+
+                    number = v.value + number
+                } else {
+                    prevDone = true
+                }
+            }
+
+            if (point.x + i < matrix[point.y].size && !nextDone) {
+                val v = matrix[point.y][point.x + i]
+
+                if (v.value.isDigit()) {
+                    if (v in visited) return -1
+                    visited += v
+
+                    number = number + v.value
+                } else {
+                    nextDone = true
+                }
+            }
+        }
+
+        return number.toInt()
+    }
+
+    fun gear(point : Point, matrix: List<List<Point>>): Int {
+        val adjacents = adjacents(point.x, point.y, matrix)
+            .filter { it.value.isDigit() }
+            .map { numberify(matrix, it) }
+            .filter { it >= 0 }
+
+        if (adjacents.size == 2) {
+            return adjacents[0] * adjacents[1]
+        }
+
+        return 0
     }
 
     fun part2(input: List<String>): Int {
@@ -133,12 +145,9 @@ fun main() {
             }
         }
 
-        matrix.forEach { line ->
-            line.filter { it.value == '*' }
-                //.filter { it.isGear() }
+        return matrix.sumOf { line ->
+            line.filter { it.value == '*' }.sumOf { gear(it, matrix) }
         }
-
-        return 1
     }
 
     val input = readInput("inputs/Day03")
