@@ -80,7 +80,7 @@ fun main() {
 
     fun isGear(point : Point, matrix: List<List<Point>>): Boolean {
         val adjacents = adjacents(point.x, point.y, matrix)
-        return adjacents
+        return true // adjacents
     }
 
     fun isPartNumber(x: Int, y: Int, matrix: List<List<Point>>): Boolean {
@@ -123,7 +123,7 @@ fun main() {
     }
 
     fun isGear(it: Point): Boolean {
-        return it.adjPointSize() == 2
+        return true // it.adjPointSize() == 2
     }
 
     fun part2(input: List<String>): Int {
@@ -135,7 +135,7 @@ fun main() {
 
         matrix.forEach { line ->
             line.filter { it.value == '*' }
-                .filter { it.isGear() }
+                //.filter { it.isGear() }
         }
 
         return 1
