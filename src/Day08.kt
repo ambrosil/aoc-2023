@@ -21,26 +21,24 @@ fun main() {
         return directions to network
     }
 
-    fun findZ(startNode: String, directions: String, network: MutableMap<String, Node>, testFunc: (current: String) -> Boolean): Int {
-        var counter = 0
+    fun findZ(startNode: String, directions: String, network: MutableMap<String, Node>, condition: (current: String) -> Boolean): Long {
+        var counter = 0L
         var current = startNode
 
-        while (testFunc(current)) {
-            directions.forEach {
-                current = if (it == 'R') network[current]!!.right else network[current]!!.left
-            }
+        while (condition(current)) {
+            directions.forEach { current = if (it == 'R') network[current]!!.right else network[current]!!.left }
             counter += directions.length
         }
 
         return counter
     }
 
-    fun part1(input: List<String>): Int {
+    fun part1(input: List<String>): Long {
         val (directions, network) = parseInput(input)
         return findZ("AAA", directions, network) { it != "ZZZ" }
     }
 
-    fun part2(input: List<String>): Int {
+    fun part2(input: List<String>): Any {
         val (directions, network) = parseInput(input)
         return network.keys.filter { it.endsWith("A") }
             .map { findZ(it, directions, network) { !it.endsWith("Z") } }
