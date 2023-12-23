@@ -18,6 +18,16 @@ data class Point(val x: Int, val y: Int) {
         return Point(x - other.x, y - other.y)
     }
 
+    fun getDirection(other: Point): Direction? {
+        return when (other) {
+            this.move(NORTH) -> return NORTH
+            this.move(SOUTH) -> return SOUTH
+            this.move(WEST) -> return WEST
+            this.move(EAST) -> return EAST
+            else -> null
+        }
+    }
+
     fun move(direction: Direction, distance: Int = 1) = when (direction) {
         EAST -> Point(x + distance, y)
         WEST -> Point(x - distance, y)
